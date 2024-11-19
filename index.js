@@ -16,7 +16,7 @@ const port = process.env.PORT || 3000;
 const countryRoutes = require('./routers/countries');
 // const companyRoutes = require('./routers/company');
 // const stateRouter = require('./routers/state');
-// const userRouter = require('./routers/account');
+const userRouter = require('./routers/account');
 // const upsRouter = require('./routers/ups')
 // const trackingRouter = require('./routers/ups')
 // const shipmentRouter = require('./routers/shipment')
@@ -42,7 +42,7 @@ app.use("/api",(req,res) =>{
 app.use('/country', countryRoutes);
 // app.use('/company', companyRoutes);
 // app.use('/state', stateRouter);
-// app.use('/account', userRouter);
+app.use('/account', userRouter);
 // app.use('/ups', upsRouter);
 // app.use('/shipment', shipmentRouter);
 
