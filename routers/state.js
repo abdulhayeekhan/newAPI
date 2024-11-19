@@ -15,40 +15,7 @@ router.get('/getAll', async(req, res) => {
         res.status(500).send('Error fetching state');
     }
 });
-  
-  // GET a specific state by id
-// router.get('/api/states/:id', async(req, res) => {
-//     const { id } = req.params;
-//     const query = 'SELECT * FROM state WHERE id = ?', [id];
-//     try {
-//         const results = await db(query); // Call db with the SQL query
-//         if (results.length === 0) {
-//           return res.status(404).send('No state found for shipping');
-//         }
-//         res.json(results);
-//     } catch (error) {
-//         console.error('Error fetching state:', error);
-//         res.status(500).send('Error fetching state');
-//     }
-// });
 
-// router.get('/getByCountry', (req, res) => {
-//     const { countryId } = req.query;
-  
-//     // If countryId is provided, filter states by countryId
-//     let query = 'SELECT * FROM state';
-//     let queryParams = [];
-  
-//     if (countryId) {
-//       query += ' WHERE countryId = ?';
-//       queryParams.push(countryId);
-//     }
-  
-//     db.query(query, queryParams, (error, results) => {
-//       if (error) return res.status(500).json({ error: error.message });
-//       res.json(results);
-//     });
-// });
 
 router.get('/getByCountry/:id', async (req, res) => {
     const countryId = req.params.id;

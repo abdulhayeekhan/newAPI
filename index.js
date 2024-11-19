@@ -20,7 +20,7 @@ const userRouter = require('./routers/account');
 const upsRouter = require('./routers/ups')
 const trackingRouter = require('./routers/ups')
 const shipmentRouter = require('./routers/shipment')
-const router = require('./routers/cities');
+// const router = require('./routers/cities');
 app.use(cors());
 
 // Other middleware and routes
