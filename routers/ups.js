@@ -80,7 +80,7 @@ router.post('/generate-label', async (req, res) => {
       }
       const consigneeResult = await AddConsignee(consigneeInfo);
       
-      await delay(1000);
+      //await delay(1000);
 
       const invoiceInfoData = {
         trackingNo:result?.PackageResults[0].TrackingNumber, 
@@ -101,12 +101,12 @@ router.post('/generate-label', async (req, res) => {
       //save label graphic in database
       await SaveLabel(saveLabel)
 
-      await delay(1000);
+      // await delay(1000);
 
       // update company label count
       await UpdateCompanyLabelCount(invoiceData?.clientCompanyId)
 
-      await delay(1000);
+      // await delay(1000);
       const shipmentInfoData = {
         trackingNo:result?.PackageResults[0].TrackingNumber,
         invoiceNo:invoiceResult?.invoiceId,
@@ -128,7 +128,7 @@ router.post('/generate-label', async (req, res) => {
       }
       
       const shipmentResult = await CreateShipment(shipmentInfoData);
-      await delay(1000);
+      // await delay(1000);
       res.json(shipmentResult);
     } catch (error) {
       res.status(500).json({ error: 'Failed to generate label' });
