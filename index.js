@@ -14,13 +14,13 @@ const port = process.env.PORT || 3000;
 
 //routes
 const countryRoutes = require('./routers/countries');
-// const companyRoutes = require('./routers/company');
-// const stateRouter = require('./routers/state');
+const companyRoutes = require('./routers/company');
+const stateRouter = require('./routers/state');
 const userRouter = require('./routers/account');
-// const upsRouter = require('./routers/ups')
-// const trackingRouter = require('./routers/ups')
-// const shipmentRouter = require('./routers/shipment')
-// const router = require('./routers/cities');
+const upsRouter = require('./routers/ups')
+const trackingRouter = require('./routers/ups')
+const shipmentRouter = require('./routers/shipment')
+const router = require('./routers/cities');
 app.use(cors());
 
 // Other middleware and routes
@@ -40,11 +40,11 @@ app.use("/api",(req,res) =>{
 
 
 app.use('/country', countryRoutes);
-// app.use('/company', companyRoutes);
-// app.use('/state', stateRouter);
+app.use('/company', companyRoutes);
+app.use('/state', stateRouter);
 app.use('/account', userRouter);
-// app.use('/ups', upsRouter);
-// app.use('/shipment', shipmentRouter);
+app.use('/ups', upsRouter);
+app.use('/shipment', shipmentRouter);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
