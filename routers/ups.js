@@ -63,9 +63,7 @@ router.post('/generate-label', async (req, res) => {
   
     try {
       const result = await generateShipmentLabel(token,shipData,cityName);
-      if (!result?.PackageResults) {
-        throw new Error('Failed to generate shipment label');
-      }
+     
       await delay(1000);
 
       const consigneeInfo = {
@@ -81,9 +79,7 @@ router.post('/generate-label', async (req, res) => {
         address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine
       }
       const consigneeResult = await AddConsignee(consigneeInfo);
-      if (!consigneeResult) {
-          throw new Error('Failed to add consignee');
-      }
+      
       await delay(1000);
 
       const invoiceInfoData = {
