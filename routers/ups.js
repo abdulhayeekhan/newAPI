@@ -56,7 +56,6 @@ router.post('/generate-label', async (req, res) => {
     const shipmentData = req.body;
     const {shipData,invoiceData} = req.body;
     const cityName = shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City;
-    console.log("shipmentData:", shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions);
     
     // if (!token || !shipper || !shipTo || !shipFrom || !packageDetails) {
     //   return res.status(400).json({ error: 'token, and shipper,shipTo,shipFrom,packageDetails are required' });
@@ -64,8 +63,10 @@ router.post('/generate-label', async (req, res) => {
   
     try {
       const result = await generateShipmentLabel(token,shipData,cityName);
-
-      console.log('shipData',shipData?.ShipmentRequest?.Shipment?.ShipTo)
+      if (!result?.PackageResults) {
+        throw new Error('Failed to generate shipment label');
+      }
+      await delay(1000);
 
       const consigneeInfo = {
         clientCompanyId:invoiceData?.clientCompanyId, 
@@ -80,7 +81,11 @@ router.post('/generate-label', async (req, res) => {
         address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine
       }
       const consigneeResult = await AddConsignee(consigneeInfo);
-      
+      if (!consigneeResult) {
+          throw new Error('Failed to add consignee');
+      }
+      await delay(1000);
+
       const invoiceInfoData = {
         trackingNo:result?.PackageResults[0].TrackingNumber, 
         total:0, 
@@ -100,9 +105,12 @@ router.post('/generate-label', async (req, res) => {
       //save label graphic in database
       await SaveLabel(saveLabel)
 
+      await delay(1000);
+
       // update company label count
       await UpdateCompanyLabelCount(invoiceData?.clientCompanyId)
 
+      await delay(1000);
       const shipmentInfoData = {
         trackingNo:result?.PackageResults[0].TrackingNumber,
         invoiceNo:invoiceResult?.invoiceId,
@@ -124,6 +132,7 @@ router.post('/generate-label', async (req, res) => {
       }
       
       const shipmentResult = await CreateShipment(shipmentInfoData);
+      await delay(1000);
       res.json(shipmentResult);
     } catch (error) {
       res.status(500).json({ error: 'Failed to generate label' });
