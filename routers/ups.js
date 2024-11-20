@@ -62,74 +62,75 @@ router.post('/generate-label', async (req, res) => {
     // }
   
     try {
-      const result = await generateShipmentLabel(token,shipData,cityName);
+      const result = await generateShipmentLabel(token,shipData,invoiceData);
      
-      await delay(1000);
+      // await delay(1000);
 
-      const consigneeInfo = {
-        clientCompanyId:invoiceData?.clientCompanyId, 
-        name:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Name, 
-        companyName:shipData?.ShipmentRequest?.Shipment?.ShipTo?.AttentionName, 
-        contactNo:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Phone?.Number, 
-        email:invoiceData?.email, 
-        countryCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.CountryCode, 
-        stateCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.StateProvinceCode, 
-        postalCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.PostalCode,
-        city:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City, 
-        address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine
-      }
-      const consigneeResult = await AddConsignee(consigneeInfo);
+      // const consigneeInfo = {
+      //   clientCompanyId:invoiceData?.clientCompanyId, 
+      //   name:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Name, 
+      //   companyName:shipData?.ShipmentRequest?.Shipment?.ShipTo?.AttentionName, 
+      //   contactNo:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Phone?.Number, 
+      //   email:invoiceData?.email, 
+      //   countryCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.CountryCode, 
+      //   stateCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.StateProvinceCode, 
+      //   postalCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.PostalCode,
+      //   city:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City, 
+      //   address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine
+      // }
+      // const consigneeResult = await AddConsignee(consigneeInfo);
       
       //await delay(1000);
 
-      const invoiceInfoData = {
-        trackingNo:result?.PackageResults[0].TrackingNumber, 
-        total:0, 
-        senderId:1, 
-        consigneeId:consigneeResult?.consigneeId, 
-        createdBy:invoiceData?.createdBy, 
-        createdAt:invoiceData?.shipDate, 
-        details:invoiceData?.Details
-      }
-      const invoiceResult = await GenerateInvoice(invoiceInfoData)
-      console.log('invoiceResult',invoiceResult?.invoiceId);
-      const saveLabel = {
-        trackingId:result?.PackageResults[0].TrackingNumber,
-        graphicImage:result?.PackageResults[0].ShippingLabel?.GraphicImage,
-        createdBy:invoiceData?.createdBy
-      }
+      // const invoiceInfoData = {
+      //   trackingNo:result?.PackageResults[0].TrackingNumber, 
+      //   total:0, 
+      //   senderId:1, 
+      //   consigneeId:consigneeResult?.consigneeId, 
+      //   createdBy:invoiceData?.createdBy, 
+      //   createdAt:invoiceData?.shipDate, 
+      //   details:invoiceData?.Details
+      // }
+      // const invoiceResult = await GenerateInvoice(invoiceInfoData)
+      // console.log('invoiceResult',invoiceResult?.invoiceId);
+      // const saveLabel = {
+      //   trackingId:result?.PackageResults[0].TrackingNumber,
+      //   graphicImage:result?.PackageResults[0].ShippingLabel?.GraphicImage,
+      //   createdBy:invoiceData?.createdBy
+      // }
       //save label graphic in database
-      await SaveLabel(saveLabel)
+      // await SaveLabel(saveLabel)
 
-      // await delay(1000);
+      // // await delay(1000);
 
-      // update company label count
-      await UpdateCompanyLabelCount(invoiceData?.clientCompanyId)
+      // // update company label count
+      // await UpdateCompanyLabelCount(invoiceData?.clientCompanyId)
 
-      // await delay(1000);
-      const shipmentInfoData = {
-        trackingNo:result?.PackageResults[0].TrackingNumber,
-        invoiceNo:invoiceResult?.invoiceId,
-        carrierCode:'UPS',
-        SenderId:1,
-        weightUnit:result?.BillingWeight?.UnitOfMeasurement?.Code,
-        weight:result?.BillingWeight?.Weight,
-        dimensionUnit:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.UnitOfMeasurement?.Code,
-        lenght:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Length,
-        width:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Width,
-        height:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Height,
-        currency:result?.ShipmentCharges?.TotalCharges?.CurrencyCode,
-        total:result?.ShipmentCharges?.TotalCharges?.MonetaryValue,
-        customerReference:'',
-        shipDate:invoiceData?.shipDate,
-        createdBy:invoiceData?.createdBy,
-        clientCompanyId:invoiceData?.clientCompanyId,
-        consigneeId:consigneeResult?.consigneeId
-      }
+      // // await delay(1000);
+      // const shipmentInfoData = {
+      //   trackingNo:result?.PackageResults[0].TrackingNumber,
+      //   invoiceNo:invoiceResult?.invoiceId,
+      //   carrierCode:'UPS',
+      //   SenderId:1,
+      //   weightUnit:result?.BillingWeight?.UnitOfMeasurement?.Code,
+      //   weight:result?.BillingWeight?.Weight,
+      //   dimensionUnit:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.UnitOfMeasurement?.Code,
+      //   lenght:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Length,
+      //   width:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Width,
+      //   height:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Height,
+      //   currency:result?.ShipmentCharges?.TotalCharges?.CurrencyCode,
+      //   total:result?.ShipmentCharges?.TotalCharges?.MonetaryValue,
+      //   customerReference:'',
+      //   shipDate:invoiceData?.shipDate,
+      //   createdBy:invoiceData?.createdBy,
+      //   clientCompanyId:invoiceData?.clientCompanyId,
+      //   consigneeId:consigneeResult?.consigneeId
+      // }
       
-      const shipmentResult = await CreateShipment(shipmentInfoData);
+      // const shipmentResult = await CreateShipment(shipmentInfoData);
       // await delay(1000);
-      res.json(shipmentResult);
+      console.log("result:",result)
+      res.json(result);
     } catch (error) {
       res.status(500).json({ error: 'Failed to generate label' });
     }
