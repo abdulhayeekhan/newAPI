@@ -118,7 +118,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
           stateCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.StateProvinceCode, 
           postalCode:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.PostalCode,
           city:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City, 
-          address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine
+          address:shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.AddressLine[0]
         }
         console.log("consigneeInfo:",consigneeInfo)
         const checkSql = `
@@ -148,11 +148,13 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
             ]);
             consigneeId =  existingRecords[0].id;
         }
-
-        const sql = `
-            INSERT INTO consignee (clientCompanyId, name, companyName, contactNo, email, countryCode, stateCode,postalCode, city, address) 
-            VALUES (?, ?, ?, ?, ?,?,?,?,?,?)`;
-            const resultCons = await db(sql, [consigneeInfo?.clientCompanyId,  consigneeInfo?.name, consigneeInfo?.companyName, consigneeInfo?.contactNo, consigneeInfo?.email, consigneeInfo?.countryCode, consigneeInfo?.stateCode,consigneeInfo?.postalCode, consigneeInfo?.city, consigneeInfo?.address]);
+       
+        if (!consigneeInfo?.clientCompanyId || !consigneeInfo?.name || !consigneeInfo?.companyName || !consigneeInfo?.contactNo || !consigneeInfo?.email || !consigneeInfo?.countryCode || !consigneeInfo?.stateCode || !consigneeInfo?.postalCode || !consigneeInfo?.city || !consigneeInfo?.address) {
+          throw new Error("Missing required values for insertion.");
+        }
+        console.log("consigneeInfo:", consigneeInfo);
+        const sqlCong = `INSERT INTO consignee (clientCompanyId, name, companyName, contactNo, email, countryCode, stateCode,postalCode, city, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const resultCons = await db(sqlCong, [consigneeInfo?.clientCompanyId,  consigneeInfo?.name, consigneeInfo?.companyName, consigneeInfo?.contactNo, consigneeInfo?.email, consigneeInfo?.countryCode, consigneeInfo?.stateCode,consigneeInfo?.postalCode, consigneeInfo?.city, consigneeInfo?.address]);
             consigneeId = resultCons.insertId;
         if(consigneeId !== "" || consigneeId !== null){
           const invoiceIdData = crypto.randomBytes(5).toString('hex').slice(0, 10);
