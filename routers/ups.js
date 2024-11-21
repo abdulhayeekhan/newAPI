@@ -8,6 +8,7 @@ const { trackPackage } = require('../controller/ups/tracking');
 const { recoverLabel } = require('../controller/ups/recoverLabel')
 
 const {generateShipmentLabel} = require('../controller/ups/labelGenerate')
+const {GenMultiShipLabel} = require('../controller/ups/multiLabel')
 const {GenerateInvoice} = require('../controller/invoice')
 const {AddConsignee} = require('../controller/consignee')
 const {CreateShipment} = require('../controller/shipment')
@@ -134,6 +135,19 @@ router.post('/generate-label', async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: 'Failed to generate label' });
     }
+});
+
+router.post('/generate-multi-label', async (req, res) => {
+  const token = req.headers['authorization'];
+  const shipmentData = req.body;
+  const {shipData,invoiceData} = req.body;
+  
+  try {
+    const result = await GenMultiShipLabel(token,shipData,invoiceData);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate label' });
+  }
 });
 
 
