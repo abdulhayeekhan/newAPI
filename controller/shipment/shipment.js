@@ -1,7 +1,7 @@
 const db = require('../../confige')
 exports.getShipments = async ({ startDate, endDate, clientCompanyId, createdBy, companyName,trackingNo }) =>{
     try{
-        let query = `SELECT * FROM shipment as sh INNER JOIN consignee as co ON co.id = sh.consigneeId WHERE 1=1`;
+        let query = `SELECT sh.*,co.*,com.companyName FROM shipment as sh INNER JOIN consignee as co ON co.id = sh.consigneeId INNER JOIN company as com ON com.id = sh.clientCompanyId WHERE 1=1`;
         const params = [];
     
         // Add filters dynamically

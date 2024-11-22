@@ -195,10 +195,10 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
                 createdBy:invoiceData?.createdBy
               }
               const sql = `
-                    INSERT INTO labels (trackingId, graphicImage, createdBy) 
-                    VALUES (?, ?, ?)`;
+                    INSERT INTO labels (trackingId, graphicImage, invoiceId, createdBy)
+                    VALUES (?, ?, ?, ?)`;
                     // Use your db function to execute the query
-              const resultLabel = await db(sql, [saveLabel?.trackingId, saveLabel?.graphicImage, saveLabel?.createdBy]);
+              const resultLabel = await db(sql, [saveLabel?.trackingId, saveLabel?.graphicImage, invoiceId, saveLabel?.createdBy]);
               if(resultLabel.insertId !==""){
                 const sql = "UPDATE company SET labelCount = labelCount - 1 WHERE id = ? AND labelCount > 0";
                 const resultUpdate = await db(sql, [invoiceData?.clientCompanyId]);

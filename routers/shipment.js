@@ -20,12 +20,12 @@ router.get('/label/:id', async (req, res) => {
     const trackingId = req.params.id;
     console.log("trackingId", trackingId);
     try {
-      const sql = 'SELECT * FROM labels WHERE trackingId = ?';
+      const sql = 'SELECT * FROM labels WHERE invoiceId = ?';
       const result = await db(sql, [trackingId]);  // Pass parameters as an array
       if (result.length === 0) {
         return res.status(404).json({ message: 'label not found' });
       }
-      res.json(result[0]);
+      res.json(result);
     } catch (error) {
         res.status(500).json({ error: 'Failed to label' });
     }

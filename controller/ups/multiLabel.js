@@ -126,13 +126,14 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
                 }
                
               const sql = `
-                    INSERT INTO labels (trackingId, graphicImage, createdBy) 
-                    VALUES ${labelsdat?.map(() => '(?, ?, ?)').join(', ')}`;
+                    INSERT INTO labels (trackingId, graphicImage, invoiceId, createdBy) 
+                    VALUES ${labelsdat?.map(() => '(?, ?, ?, ?)').join(', ')}`;
                     // Use your db function to execute the query
                 let createdID = invoiceData?.createdBy
                 const labelsDetail = labelsdat?.flatMap(d => [
                     d.TrackingNumber,
                     d.ShippingLabel?.GraphicImage,
+                    invoiceId,
                     createdID,
                 ]);
                 // console.log("labelsDetail:=>",labelsDetail)
