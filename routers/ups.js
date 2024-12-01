@@ -14,6 +14,7 @@ const {AddConsignee} = require('../controller/consignee')
 const {CreateShipment} = require('../controller/shipment')
 const {SaveLabel} = require('../controller/savelabel')
 const {UpdateCompanyLabelCount} = require('../controller/updateCompanyLabelCount')
+const {uploadDocument} = require('../controller/ups/paperless')
 router.post('/addShipment', GenShipLabelWithUPSAPI);
 router.post('/oauth-token', getOAuthToken);
 // router.get('/tracking', getTrackingDetails);
@@ -168,6 +169,18 @@ router.post('/generate-invoice', async (req, res) => {
     res.status(500).json({ error: 'Failed to generate invoice' });
   }
 });
+
+router.post('/upload-paperless', async (req, res) => {
+  const token = req.headers['authorization'];
+  try{
+    const result = await uploadDocument(token)
+    console.log("result:",result);
+    res.json(result);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Failed to generate invoice' });
+  }
+})
 
 router.post('/add-consignee', async (req, res) => {
   // const data = req.body;
