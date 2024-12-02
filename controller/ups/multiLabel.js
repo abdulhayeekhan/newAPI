@@ -310,7 +310,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
             createdAt:invoiceData?.shipDate, 
             details:invoiceData?.Details
           }
-
+          
           
           const detailsContent = invoiceInfoData.details.map(detail => {
             return `Description: ${detail.description}, HtsCode: ${detail.HtsCode}, Unit Price: ${detail.unitPrice}, Quantity: ${detail.Qty}, Total : ${detail.Qty*detail.unitPrice}`;
@@ -372,9 +372,9 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           );
           //paperless documents end
 
-          // console.log("CustomerContext:",CustomerContext)
+          // console.log("CustomerContext:",CustomerContext)invoiceInfoData?.trackingNo
           // const response = await axios.post(
-          //   `${UPS_API_URL}/api/labels/v1/recovery`,
+          //   `https://onlinetools.ups.com/api/labels/v1/recovery`,
           //   {
           //     LabelRecoveryRequest: {
           //       LabelDelivery: {
@@ -408,6 +408,8 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           //     }
           //   }
           // );
+
+          // console.log("response:",response.data?.LabelRecoveryResponse?.LabelResults)
 
           //console.log("recovery label:",response)
             
@@ -529,7 +531,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
             }
         }
       }
-      console.log("label response:", response?.status);
+      //console.log("label response:", response?.status);
       return response?.data?.ShipmentResponse?.ShipmentResults;
       // Respond with the UPS response
       //return res.status(200).json(response.data);

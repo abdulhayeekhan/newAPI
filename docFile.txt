@@ -1,12 +1,12 @@
 Tracking Number: 1ZXXXXXXXXXXXXXXXX
-          Total: 250
+          Total: 52
           SENDER: ESCM GMBH
           SENDER ADDRESS: Koln, Germany 50829
           SENDER PHONE: 0049-15202446893
           SENDER COUNTRY: Germany
-          CONSIGNEE : rest
+          CONSIGNEE : test
           CONSIGNEE ADDRESS: 4903 WEST 2200 SOUTH OGDEN, UT 84401 US
-          CONSIGNEE PHONE: 987456321555
+          CONSIGNEE PHONE: 032145698741
           CONSIGNEE COUNTRY: US
-          DETAILS: Description: test, HtsCode: 521132400000, Unit Price: 50, Quantity: 5, Total : 250
+          DETAILS: Description: monthly collection dashboard for both campus and head office., HtsCode: 123654, Unit Price: 52, Quantity: 1, Total : 52
           

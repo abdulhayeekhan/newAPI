@@ -46,6 +46,7 @@ router.post('/recover-label', async (req, res) => {
   
     try {
       const result = await recoverLabel(token, trackingNumber);
+      console.log("result",result)
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: 'Failed to recover label' });
@@ -108,7 +109,7 @@ router.post('/generate-label', async (req, res) => {
       // // update company label count
       // await UpdateCompanyLabelCount(invoiceData?.clientCompanyId)
 
-      // // await delay(1000);
+      // // await delay(1000);recoverLabel
       // const shipmentInfoData = {
       //   trackingNo:result?.PackageResults[0].TrackingNumber,
       //   invoiceNo:invoiceResult?.invoiceId,
