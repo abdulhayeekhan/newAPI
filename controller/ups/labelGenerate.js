@@ -192,39 +192,39 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
           `;
 
           // Write it to a text file
-          fs.writeFileSync('docFile.txt', textContent);
+          // fs.writeFileSync('docFile.txt', textContent);
 
-          const filePath = 'docFile.txt';
-          const fileContent = fs.readFileSync(filePath);
-          const base64File = fileContent.toString('base64');
+          // const filePath = 'docFile.txt';
+          // const fileContent = fs.readFileSync(filePath);
+          // const base64File = fileContent.toString('base64');
 
-          const paperless_res = await axios.post(
-            `${UPS_API_URL}/api/paperlessdocuments/v1/upload`,
-            {
-              UploadRequest: {
-                Request: {
-                  TransactionReference: {
-                    CustomerContext: CustomerContext
-                  }
-                },
-                UserCreatedForm: {
-                  UserCreatedFormFileName: filePath,
-                  UserCreatedFormFileFormat: 'txt',
-                  UserCreatedFormDocumentType: '013',
-                  UserCreatedFormFile: base64File
-                }
-              }
-            },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                transId: 'string',
-                transactionSrc: 'testing',
-                ShipperNumber: 'A70C63',
-                Authorization: `Bearer ${token}`
-              }
-            }
-          );
+          // const paperless_res = await axios.post(
+          //   `${UPS_API_URL}/api/paperlessdocuments/v1/upload`,
+          //   {
+          //     UploadRequest: {
+          //       Request: {
+          //         TransactionReference: {
+          //           CustomerContext: CustomerContext
+          //         }
+          //       },
+          //       UserCreatedForm: {
+          //         UserCreatedFormFileName: filePath,
+          //         UserCreatedFormFileFormat: 'txt',
+          //         UserCreatedFormDocumentType: '013',
+          //         UserCreatedFormFile: base64File
+          //       }
+          //     }
+          //   },
+          //   {
+          //     headers: {
+          //       'Content-Type': 'application/json',
+          //       transId: 'string',
+          //       transactionSrc: 'testing',
+          //       ShipperNumber: 'A70C63',
+          //       Authorization: `Bearer ${token}`
+          //     }
+          //   }
+          // );
 
             const sql = `INSERT INTO invoice (trackingNo, total, senderId, consigneeId,invoiceId, createdBy) 
                     VALUES (?, ?, ?, ?, ?,?)`;
