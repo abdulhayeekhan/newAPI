@@ -488,13 +488,13 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
                     dimensionUnit:shipData?.ShipmentRequest?.Shipment?.Package[0]?.Dimensions?.UnitOfMeasurement?.Code,
                     currency:result?.ShipmentCharges?.TotalCharges?.CurrencyCode,
                     total:result?.ShipmentCharges?.TotalCharges?.MonetaryValue,
-                    customerReference:'',
+                    customerReference:shipData?.ShipmentRequest.Shipment.Description,
                     shipDate:invoiceData?.shipDate,
                     createdBy:invoiceData?.createdBy,
                     clientCompanyId:invoiceData?.clientCompanyId,
                     consigneeId:consigneeId
                   }
-                  console.log("shipmentInfoData:=>",shipmentInfoData)
+                  
                   const sql = `
                     INSERT INTO shipment (trackingNo,invoiceNo,carrierCode, SenderId, weightUnit, weight, dimensionUnit, lenght, width, height, currency, total, customerReference, shipDate, createdBy, clientCompanyId, consigneeId) 
                     VALUES (?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?)`;

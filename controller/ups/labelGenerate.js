@@ -87,7 +87,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
   console.log("shipmentData", shipmentData);
     try {
       const cityName = shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City;
-     
+      const CustomerContext = shipData?.ShipmentRequest?.Request?.TransactionReference?.CustomerContext;
       const query = new URLSearchParams({
         additionaladdressvalidation: cityName,
       }).toString();
@@ -157,7 +157,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
             const resultCons = await db(sqlCong, [consigneeInfo?.clientCompanyId,  consigneeInfo?.name, consigneeInfo?.companyName, consigneeInfo?.contactNo, consigneeInfo?.email, consigneeInfo?.countryCode, consigneeInfo?.stateCode,consigneeInfo?.postalCode, consigneeInfo?.city, consigneeInfo?.address]);
             consigneeId = resultCons.insertId;
         if(consigneeId !== "" || consigneeId !== null){
-          const invoiceIdData = crypto.randomBytes(5).toString('hex').slice(0, 10);
+          const invoiceIdData = CustomerContext;
           let invoiceInfoData = {
             trackingNo:result?.PackageResults[0].TrackingNumber, 
             total:0, 
@@ -168,6 +168,64 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
             createdAt:invoiceData?.shipDate, 
             details:invoiceData?.Details
           }
+
+          const detailsContent = invoiceInfoData.details.map(detail => {
+            return `Description: ${detail.description}, HtsCode: ${detail.HtsCode}, Unit Price: ${detail.unitPrice}, Quantity: ${detail.Qty}, Total : ${detail.Qty*detail.unitPrice}`;
+          }).join('\n'); // Join each detail with a newline
+
+          const totalPrice = invoiceInfoData.details?.reduce(
+            (sum, item) => sum + (item.unitPrice * item.Qty || 0),
+            0
+          );
+
+          const textContent = `Tracking Number: ${invoiceInfoData.trackingNo}
+          Total: ${totalPrice}
+          SENDER: ESCM GMBH
+          SENDER ADDRESS: Koln, Germany 50829
+          SENDER PHONE: 0049-15202446893
+          SENDER COUNTRY: Germany
+          CONSIGNEE : ${consigneeInfo?.name}
+          CONSIGNEE ADDRESS: ${consigneeInfo?.address} ${consigneeInfo?.city}, ${consigneeInfo?.stateCode} ${consigneeInfo?.postalCode} ${consigneeInfo?.countryCode}
+          CONSIGNEE PHONE: ${consigneeInfo?.contactNo}
+          CONSIGNEE COUNTRY: ${consigneeInfo?.countryCode}
+          DETAILS: ${detailsContent}
+          `;
+
+          // Write it to a text file
+          fs.writeFileSync('docFile.txt', textContent);
+
+          const filePath = 'docFile.txt';
+          const fileContent = fs.readFileSync(filePath);
+          const base64File = fileContent.toString('base64');
+
+          const paperless_res = await axios.post(
+            `${UPS_API_URL}/api/paperlessdocuments/v1/upload`,
+            {
+              UploadRequest: {
+                Request: {
+                  TransactionReference: {
+                    CustomerContext: CustomerContext
+                  }
+                },
+                UserCreatedForm: {
+                  UserCreatedFormFileName: filePath,
+                  UserCreatedFormFileFormat: 'txt',
+                  UserCreatedFormDocumentType: '013',
+                  UserCreatedFormFile: base64File
+                }
+              }
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                transId: 'string',
+                transactionSrc: 'testing',
+                ShipperNumber: 'A70C63',
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+
             const sql = `INSERT INTO invoice (trackingNo, total, senderId, consigneeId,invoiceId, createdBy) 
                     VALUES (?, ?, ?, ?, ?,?)`;
 
@@ -203,7 +261,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
                 const sql = "UPDATE company SET labelCount = labelCount - 1 WHERE id = ? AND labelCount > 0";
                 const resultUpdate = await db(sql, [invoiceData?.clientCompanyId]);
                 if(resultUpdate !== ""){
-                  console.log("updated")
+          
                   const shipmentInfoData = {
                     trackingNo:result?.PackageResults[0].TrackingNumber,
                     invoiceNo:invoiceId,
@@ -217,7 +275,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
                     height:shipData?.ShipmentRequest?.Shipment?.Package?.Dimensions?.Height,
                     currency:result?.ShipmentCharges?.TotalCharges?.CurrencyCode,
                     total:result?.ShipmentCharges?.TotalCharges?.MonetaryValue,
-                    customerReference:'',
+                    customerReference:shipData?.ShipmentRequest.Shipment.Description,
                     shipDate:invoiceData?.shipDate,
                     createdBy:invoiceData?.createdBy,
                     clientCompanyId:invoiceData?.clientCompanyId,
@@ -260,10 +318,7 @@ const generateShipmentLabel = async (token,shipData,invoiceData) => {
             }
         }
       }
-      console.log("label response:", response?.status);
       return response?.data?.ShipmentResponse?.ShipmentResults;
-      // Respond with the UPS response
-      //return res.status(200).json(response.data);
     } catch (error) {
       console.error('Error generating shipment label:', error);
       return res.status(500).json({ message: 'Error generating shipment label', error: error.message });
