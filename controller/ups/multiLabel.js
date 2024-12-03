@@ -312,11 +312,11 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           }
           
           
-          const detailsContent = invoiceInfoData.details.map(detail => {
+          const detailsContent = await invoiceInfoData.details.map(detail => {
             return `Description: ${detail.description}, HtsCode: ${detail.HtsCode}, Unit Price: ${detail.unitPrice}, Quantity: ${detail.Qty}, Total : ${detail.Qty*detail.unitPrice}`;
           }).join('\n'); // Join each detail with a newline
 
-          const totalPrice = invoiceInfoData.details?.reduce(
+          const totalPrice = await invoiceInfoData.details?.reduce(
             (sum, item) => sum + (item.unitPrice * item.Qty || 0),
             0
           );
@@ -338,13 +338,13 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           // Write it to a text file
           fs.writeFileSync('docFile.txt', textContent);
 
-          const filePath = 'docFile.txt';
+          const filePath = `docFile.txt`;
           const fileContent = fs.readFileSync(filePath);
           const base64File = fileContent.toString('base64');
 
           //paperless documents start
           const paperless_res = await axios.post(
-            `${UPS_API_URL}/api/paperlessdocuments/v1/upload`,
+            `https://onlinetools.ups.com/api/paperlessdocuments/v1/upload`,
             {
               UploadRequest: {
                 Request: {
@@ -370,48 +370,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
               }
             }
           );
-          //paperless documents end
-
-          // console.log("CustomerContext:",CustomerContext)invoiceInfoData?.trackingNo
-          // const response = await axios.post(
-          //   `https://onlinetools.ups.com/api/labels/v1/recovery`,
-          //   {
-          //     LabelRecoveryRequest: {
-          //       LabelDelivery: {
-          //         LabelLinkIndicator: '',
-          //         ResendEmailIndicator: ''
-          //       },
-          //       LabelSpecification: {
-          //         HTTPUserAgent: 'Mozilla/4.5',
-          //         LabelImageFormat: { Code: 'ZPL' },
-          //         LabelStockSize: { Height: '6', Width: '4' }
-          //       },
-          //       Request: {
-          //         RequestOption: 'Non_Validate',
-          //         SubVersion: '1903',
-          //         TransactionReference: { CustomerContext: "" }
-          //       },
-          //       TrackingNumber: "1ZA70C630406283405", // Use trackingNumber passed in the request body
-          //       Translate: {
-          //         Code: '01',
-          //         DialectCode: 'US',
-          //         LanguageCode: 'eng'
-          //       }
-          //     }
-          //   },
-          //   {
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //       transId: 'string',
-          //       transactionSrc: 'testing',
-          //       Authorization: `Bearer ${token}` // Replace with your actual Bearer token
-          //     }
-          //   }
-          // );
-
-          // console.log("response:",response.data?.LabelRecoveryResponse?.LabelResults)
-
-          //console.log("recovery label:",response)
+          console.log("paperless_res:",paperless_res);
             
             
             const sql = `INSERT INTO invoice (trackingNo, total, senderId, consigneeId,invoiceId, createdBy) 
