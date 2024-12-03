@@ -336,9 +336,9 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           `;
 
           // Write it to a text file
-          fs.writeFileSync('docFile.txt', textContent);
+          fs.writeFileSync(`${CustomerContext}.txt`, textContent);
 
-          const filePath = `docFile.txt`;
+          const filePath = `${CustomerContext}.txt`;
           const fileContent = fs.readFileSync(filePath);
           const base64File = fileContent.toString('base64');
 

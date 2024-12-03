@@ -1,0 +1,12 @@
+Tracking Number: 1ZXXXXXXXXXXXXXXXX
+          Total: 255
+          SENDER: ESCM GMBH
+          SENDER ADDRESS: Koln, Germany 50829
+          SENDER PHONE: 0049-15202446893
+          SENDER COUNTRY: Germany
+          CONSIGNEE : yesy
+          CONSIGNEE ADDRESS: 446 Drumcliff Way Rochester, NY 14612 US
+          CONSIGNEE PHONE: 03214569875
+          CONSIGNEE COUNTRY: US
+          DETAILS: Description: FABRIC TROUSERS, HtsCode: 23654789, Unit Price: 5, Quantity: 51, Total : 255
+          
