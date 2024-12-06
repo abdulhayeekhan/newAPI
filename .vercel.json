@@ -1,6 +1,6 @@
 {
     "functions": {
-      "api/upload-txt.js": {
+      "ups/upload-paperless": {
         "runtime": "nodejs20.x"
       }
     }
