@@ -1,0 +1,7 @@
+{
+    "functions": {
+      "api/upload-txt.js": {
+        "runtime": "nodejs20.x"
+      }
+    }
+  }
