@@ -1,10 +1,13 @@
 const axios = require('axios');
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// const upload = multer({ dest: 'uploads/' });
+
 const uploadDocument = async (token) => {
-  const version = 'v1';  // Replace with actual version parameter
-  
+
+
   const textContent = `Tracking Number:
           Total: 
           SENDER: ESCM GMBH
@@ -18,7 +21,9 @@ const uploadDocument = async (token) => {
           DETAILS: 
           `;
 
-          const dirPath = path.join(__dirname, 'uploads');
+
+
+          const dirPath = path.join('/tmp', 'uploads');
           if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
           }
@@ -30,7 +35,7 @@ const uploadDocument = async (token) => {
           // Read the file
           const fileContent = fs.readFileSync(filePath);
           const base64File = fileContent.toString('base64');
-
+          return {base64File:base64File,filePath:filePath};
   // try {
   //   const response = await axios.post(
   //     `https://wwwcie.ups.com/api/paperlessdocuments/${version}/upload`,
