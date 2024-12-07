@@ -346,7 +346,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
           if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
           }
-          const filePath = path.join(dirPath, `${token}.txt`);
+          const filePath = path.join(dirPath, `${CustomerContext}.txt`);
 
           // Write it to a text file
           fs.writeFileSync(filePath, textContent);
