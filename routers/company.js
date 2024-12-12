@@ -170,6 +170,7 @@ router.get('/getAllList', async(req, res) => {
   // Example route to get a company by ID
   router.get('/getSingle/:id', async (req, res) => {
     const companyId = req.params.id;
+    console.log("companyId",companyId)
     try {
       const sql = 'SELECT * FROM company WHERE id = ?';
       const company = await db(sql, [companyId]);  // Pass parameters as an array
@@ -181,5 +182,54 @@ router.get('/getAllList', async(req, res) => {
       res.status(500).json({ message: 'Error fetching company', error: error.message });
     }
   });
+
+
+  router.put('/update', async (req, res) => {
+    //const companyId = req.params.companyId;  // Get companyId from URL params
+    const {companyId, companyName, contactNo, address, labelCount, maxUser, isActive } = req.body;  // Assuming these fields exist in the request body
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+  
+    // Ensure required fields are present
+    if (!companyName || !address || !contactNo) {
+      return res.status(400).json({ message: 'All fields (name, address, phone) are required' });
+    }
+  
+    // SQL query to update the company details based on companyId
+    const sql = `
+      UPDATE company
+      SET companyName = ?, contactNo = ?, address = ?, labelCount = ?, maxUser = ?, isActive = ?
+      WHERE id = ?
+    `;
+    
+    try {
+      // Execute the SQL query to update the company record
+      const result = await db(sql, [companyName, contactNo, address, labelCount, maxUser, isActive, companyId]);
+      
+      // Check if any rows were affected (i.e., the company record was found and updated)
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+  
+      // Send response after successful update
+      res.status(200).json({
+        message: 'Company updated successfully',
+        data: {
+          companyId,
+          companyName,
+          contactNo,
+          labelCount,
+          maxUser,
+          isActive
+        }
+      });
+    } catch (error) {
+      // Catch any errors and send a failure response
+      res.status(500).json({ message: 'Error updating company', error: error.message });
+    }
+  });
+  
 
 module.exports = router;
