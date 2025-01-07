@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../confige/index')
-const {AddFlightStatus} = require('../controller/flight/add');
+const {AddFlightStatus,GetFlightInfo} = require('../controller/flight');
 
 
 router.post('/add', async (req, res) => {
@@ -13,6 +13,17 @@ router.post('/add', async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: 'Failed to save flight data' });
     }
+});
+
+router.post('/GetSingle', async (req, res) => {
+  const {id} = req.body;
+  
+  try {
+    const result = await GetFlightInfo(id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save flight data' });
+  }
 });
 
 
