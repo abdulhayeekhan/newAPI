@@ -517,6 +517,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
   const shipmentData = shipData;
     try {
       const cityName = shipData?.ShipmentRequest?.Shipment?.ShipTo?.Address?.City;
+      let labellength = shipData?.ShipmentRequest?.Shipment?.Package?.length
       const CustomerContext = shipData?.ShipmentRequest?.Request?.TransactionReference?.CustomerContext;
       const query = new URLSearchParams({
         additionaladdressvalidation: cityName,
@@ -758,11 +759,11 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
                   }
                   
                   const sql = `
-                    INSERT INTO shipment (trackingNo,invoiceNo,carrierCode, SenderId, weightUnit, weight, dimensionUnit, lenght, width, height, currency, total, customerReference, shipDate, createdBy, clientCompanyId, consigneeId) 
-                    VALUES (?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+                    INSERT INTO shipment (trackingNo,invoiceNo,carrierCode, SenderId, weightUnit, weight, dimensionUnit, lenght, width, height, currency, total, boxes, customerReference, shipDate, createdBy, clientCompanyId, consigneeId) 
+                    VALUES (?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
                     // Use your db function to execute the query
-                    const resultShipment = await db(sql, [shipmentInfoData?.trackingNo,shipmentInfoData?.invoiceNo,shipmentInfoData?.carrierCode, shipmentInfoData?.SenderId, shipmentInfoData?.weightUnit, shipmentInfoData?.weight, shipmentInfoData?.dimensionUnit,shipmentInfoData?.lenght, shipmentInfoData?.width, shipmentInfoData?.height, shipmentInfoData?.currency, shipmentInfoData?.total, shipmentInfoData?.customerReference, shipmentInfoData?.shipDate, shipmentInfoData?.createdBy, shipmentInfoData?.clientCompanyId, shipmentInfoData?.consigneeId]);
+                    const resultShipment = await db(sql, [shipmentInfoData?.trackingNo,shipmentInfoData?.invoiceNo,shipmentInfoData?.carrierCode, shipmentInfoData?.SenderId, shipmentInfoData?.weightUnit, shipmentInfoData?.weight, shipmentInfoData?.dimensionUnit,shipmentInfoData?.lenght, shipmentInfoData?.width, shipmentInfoData?.height, shipmentInfoData?.currency, shipmentInfoData?.total,labellength, shipmentInfoData?.customerReference, shipmentInfoData?.shipDate, shipmentInfoData?.createdBy, shipmentInfoData?.clientCompanyId, shipmentInfoData?.consigneeId]);
                     const ShipinsertedId = resultShipment.insertId;
                     return { 
                         message:"Shipment Create and Label Generete Succfully" , 
@@ -780,6 +781,7 @@ const GenMultiShipLabel = async (token,shipData,invoiceData) => {
                             height:shipmentInfoData?.height,
                             currency:shipmentInfoData?.currency,
                             total:shipmentInfoData?.total,
+                            boxes:labellength,
                             customerReference:shipmentInfoData?.customerReference,
                             shipDate:shipmentInfoData?.shipDate,
                             createdBy:shipmentInfoData?.createdBy,
