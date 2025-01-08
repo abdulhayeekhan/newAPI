@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../confige/index')
-const {AddFlightStatus,GetFlightInfo} = require('../controller/flight');
+const {AddFlightStatus,GetFlightInfo,GetFlightList} = require('../controller/flight');
 
 
 router.post('/add', async (req, res) => {
@@ -31,7 +31,8 @@ router.post('/GetAll', async (req, res) => {
       const result = await GetFlightList({pageNo,pageSize,companyId,startDate,endDate,userId,flightId});
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to save flight data' });
+      console.log(error)
+      res.status(500).json({ error: 'Failed to get flights data' });
     }
   });
 

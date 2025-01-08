@@ -88,30 +88,33 @@ const GetFlightInfo = async(id) =>{
 
 const GetFlightList = async({pageNo,pageSize,companyId,startDate,endDate,userId,flightId}) => {
     try {
-        let query = `SELECT track.*,company?.companyName,users?.firstName,users?.lastName FROM flights_track as track 
-                    INNER JOIN company ON company?.id = track.companyID  
-                    INNER JOIN users ON users?.id = track.createdBy
+        let query = `SELECT track.*,company.companyName,users.firstName,users.lastName,
+                    SUM(shipment.bags) AS totalBags    
+                    FROM flights_track as track 
+                    INNER JOIN company ON company.id = track.companyID  
+                    INNER JOIN users ON users.id = track.createdBy
+                    LEFT JOIN flights_confige_shipment AS shipment ON shipment.trackId = track.id
                     WHERE 1=1`
         const params = [];
 
         if (startDate) {
-            query += ` AND track?.rackcreatedAt >= ?`;
+            query += ` AND track.rackcreatedAt >= ?`;
             params.push(startDate);
         }
         if (endDate) {
-            query += ` AND track?.createdAt <= ?`;
+            query += ` AND track.createdAt <= ?`;
             params.push(endDate);
         }
         if (companyId) {
-            query += ` AND track?.companyId = ?`;
+            query += ` AND track.companyId = ?`;
             params.push(companyId);
         }
         if (userId) {
-            query += ` AND track?.createdBy = ?`;
+            query += ` AND track.createdBy = ?`;
             params.push(userId);
         }
         if(flightId){
-            query += ` AND track?.awb = ?`;
+            query += ` AND track.awb = ?`;
             params.push(flightId);
         }
 
@@ -148,14 +151,17 @@ const GetFlightList = async({pageNo,pageSize,companyId,startDate,endDate,userId,
         const totalPages = Math.ceil(totalCount / pageSize);
 
         // Add pagination to the main query
+        query += ` GROUP BY shipment.trackId`;
+
         const offset = (pageNo - 1) * pageSize; // Calculate the offset based on pageNo and pageSize
-        query += ` ORDER BY track?.id DESC LIMIT ? OFFSET ?`;
+        query += ` ORDER BY track.id DESC LIMIT ? OFFSET ?`;
         params.push(pageSize, offset);
 
         const result = await db(query, params);
         // console.log('params',params)
         // const result = await db(query,params);
         // // return result;
+        console.log(result)
 
         return {
             data: result,
