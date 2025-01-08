@@ -86,8 +86,88 @@ const GetFlightInfo = async(id) =>{
     //res.json(flightInfo[0]);  // Return the first (and only) result
 }
 
-// const GetFlightsList = async() => {
+const GetFlightList = async({pageNo,pageSize,companyId,startDate,endDate,userId,flightId}) => {
+    try {
+        let query = `SELECT track.*,company?.companyName,users?.firstName,users?.lastName FROM flights_track as track 
+                    INNER JOIN company ON company?.id = track.companyID  
+                    INNER JOIN users ON users?.id = track.createdBy
+                    WHERE 1=1`
+        const params = [];
 
-// }
+        if (startDate) {
+            query += ` AND track?.rackcreatedAt >= ?`;
+            params.push(startDate);
+        }
+        if (endDate) {
+            query += ` AND track?.createdAt <= ?`;
+            params.push(endDate);
+        }
+        if (companyId) {
+            query += ` AND track?.companyId = ?`;
+            params.push(companyId);
+        }
+        if (userId) {
+            query += ` AND track?.createdBy = ?`;
+            params.push(userId);
+        }
+        if(flightId){
+            query += ` AND track?.awb = ?`;
+            params.push(flightId);
+        }
 
-module.exports = { AddFlightStatus,GetFlightInfo };
+
+        let countQuery = `SELECT COUNT(*) as totalCount FROM flights_track WHERE 1=1`;
+        const newparams = [];
+        if (companyId) {
+            countQuery += ` AND companyID = ?`;
+            newparams.push(companyId);
+        }
+        if (startDate) {
+            countQuery += ` AND createdAt >= ?`;
+            newparams.push(startDate);
+        }
+        if (endDate) {
+            countQuery += ` AND createdAt <= ?`;
+            newparams.push(endDate);
+        }
+        if (companyId) {
+            countQuery += ` AND companyId = ?`;
+            newparams.push(companyId);
+        }
+        if (userId) {
+            countQuery += ` AND createdBy = ?`;
+            newparams.push(userId);
+        }
+        if(flightId){
+            countQuery += ` AND awb = ?`;
+            newparams.push(flightId);
+        }
+        const totalCountResult = await db(countQuery, newparams);
+        const totalCount = totalCountResult[0]?.totalCount || 0;
+
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        // Add pagination to the main query
+        const offset = (pageNo - 1) * pageSize; // Calculate the offset based on pageNo and pageSize
+        query += ` ORDER BY track?.id DESC LIMIT ? OFFSET ?`;
+        params.push(pageSize, offset);
+
+        const result = await db(query, params);
+        // console.log('params',params)
+        // const result = await db(query,params);
+        // // return result;
+
+        return {
+            data: result,
+            totalCount: totalCount,
+            pageNo: pageNo,
+            pageSize: pageSize,
+            totalPages: totalPages,
+        };
+        
+    } catch (error) {
+        return error
+    }
+}
+
+module.exports = { AddFlightStatus,GetFlightInfo,GetFlightList };
