@@ -10,12 +10,12 @@ app.use(express.json());
 const UPS_API_URL = process.env.UPS_API_URL
 
 const AddFlightStatus = async(flightsInfo) => {
-    const {companyID,awb,createdBy,shipDate,details} = flightsInfo;
-    const sql = `INSERT INTO flights_track (companyID, awb, createdBy,shipDate) 
-                    VALUES (?,?,?,?)`;
+    const {companyID,awb,managedBy,createdBy,shipDate,details} = flightsInfo;
+    const sql = `INSERT INTO flights_track (companyID, awb,managedBy, createdBy,shipDate) 
+                    VALUES (?,?,?,?,?)`;
 
     // Use your db function to execute the query
-    const resultflight = await db(sql, [companyID , awb, createdBy, shipDate]);
+    const resultflight = await db(sql, [companyID , awb,managedBy, createdBy, shipDate]);
     let insertedFlightId = resultflight.insertId;
 
     const detailsQuery = `INSERT INTO flights_confige_shipment (trackId, shipmentId, bags, statusID)
@@ -48,7 +48,7 @@ const AddFlightStatus = async(flightsInfo) => {
 }
 
 const GetFlightInfo = async(id) =>{
-    const sql = 'SELECT track.*,users.firstName,users.lastName,com.companyName FROM flights_track as track INNER JOIN company as com ON com.id = track.companyID INNER JOIN users ON users.id = track.createdBy WHERE track.id = ? AND track.idDeleted = 0';
+    const sql = 'SELECT track.*,users.firstName,users.lastName,com.companyName FROM flights_track as track INNER JOIN company as com ON com.id = track.companyID INNER JOIN users ON users.id = track.managedBy WHERE track.id = ? AND track.idDeleted = 0';
     const flightInfo = await db(sql, [id]);  // Pass parameters as an array
     if (flightInfo.length === 0) {
       return  { message: 'flight not found' };
@@ -92,13 +92,13 @@ const GetFlightList = async({pageNo,pageSize,companyId,startDate,endDate,userId,
                     SUM(shipment.bags) AS totalBags    
                     FROM flights_track as track 
                     INNER JOIN company ON company.id = track.companyID  
-                    INNER JOIN users ON users.id = track.createdBy
+                    INNER JOIN users ON users.id = track.managedBy
                     LEFT JOIN flights_confige_shipment AS shipment ON shipment.trackId = track.id
                     WHERE 1=1`
         const params = [];
 
         if (startDate) {
-            query += ` AND track.rackcreatedAt >= ?`;
+            query += ` AND track.createdAt >= ?`;
             params.push(startDate);
         }
         if (endDate) {
