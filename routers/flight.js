@@ -57,7 +57,7 @@ router.post('/GetTrackID', async (req, res) => {
         return res.status(409).json({ message: 'Tracking No not exist' });
       }
       if(trackingResult[0].isUpdated !== 0){
-        return res.status(409).json({ message: 'This Tracking No already attach with another flight' });
+        return res.status(409).json({ message: 'This Tracking ID is already linked to another flight' });
       }
       res.json({
           id:trackingResult[0].id,
