@@ -4,10 +4,10 @@ const db = require('../confige/index')
 const {getShipments} = require('../controller/shipment/shipment')
 
 router.post('/getAll', async (req, res) => {
-    const { startDate, endDate, clientCompanyId, createdBy, companyName , trackingNo ,pageNo, pageSize} = req.body;
+    const { startDate, endDate, clientCompanyId, createdBy, companyName , trackingNo ,pageNo, pageSize ,refrenceNo} = req.body;
 
     try {
-        const shipments = await getShipments({ startDate, endDate, clientCompanyId, createdBy, companyName ,trackingNo, pageNo,pageSize });
+        const shipments = await getShipments({ startDate, endDate, clientCompanyId, createdBy, companyName ,trackingNo, pageNo,pageSize,refrenceNo });
         res.status(200).json(shipments);
     } catch (error) {
         console.error(error);

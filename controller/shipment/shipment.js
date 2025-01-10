@@ -1,5 +1,5 @@
 const db = require('../../confige')
-exports.getShipments = async ({ startDate, endDate, clientCompanyId, createdBy, companyName,trackingNo,pageNo,pageSize }) =>{
+exports.getShipments = async ({ startDate, endDate, clientCompanyId, createdBy, companyName,trackingNo,pageNo,pageSize,refrenceNo }) =>{
     try{
         let query = `SELECT sh.*,co.*,com.companyName,inv.invoiceId as invoiceID FROM shipment as sh INNER JOIN consignee as co ON co.id = sh.consigneeId INNER JOIN company as com ON com.id = sh.clientCompanyId INNER JOIN invoice as inv ON inv.id = sh.invoiceNo WHERE 1=1`;
         const params = [];
@@ -29,6 +29,10 @@ exports.getShipments = async ({ startDate, endDate, clientCompanyId, createdBy, 
             query += ` AND sh.trackingNo = ?`;
             params.push(trackingNo);
         }
+        if(refrenceNo){
+            query += ` AND sh.customerReference = ?`;
+            params.push(refrenceNo);
+        }
     
         //query += ` ORDER BY sh.id DESC`;
 
@@ -53,6 +57,11 @@ exports.getShipments = async ({ startDate, endDate, clientCompanyId, createdBy, 
             countQuery += ` AND sh.createdAt <= ?`;
             newparams.push(endDate);
         }
+        if(refrenceNo){
+            countQuery += ` AND sh.customerReference = ?`;
+            newparams.push(refrenceNo);
+        }
+        
         const totalCountResult = await db(countQuery, newparams);
         const totalCount = totalCountResult[0]?.totalCount || 0;
 
