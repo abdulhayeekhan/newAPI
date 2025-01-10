@@ -61,7 +61,7 @@ router.post('/GetTrackID', async (req, res) => {
       }
       res.json({
           id:trackingResult[0].id,
-          status:trackingResult[0].trackingNo,
+          trackingNo:trackingResult[0].trackingNo,
           bags:trackingResult[0].boxes
       });
     } catch (error) {
