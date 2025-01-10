@@ -38,7 +38,7 @@ router.post('/GetAll', async (req, res) => {
 
 router.post('/GetTrackID', async (req, res) => {
     const {companyId,trackingNo} = req.body;
-    let query = `SELECT id,trackingNo,boxes FROM shipment WHERE 1=1`;
+    let query = `SELECT * FROM shipment WHERE 1=1`;
     const params = [];
     if(companyId){
       query += ` AND clientCompanyId = ?`;
@@ -52,13 +52,18 @@ router.post('/GetTrackID', async (req, res) => {
     }
     try {
       const trackingResult = await db(query, params);
+      console.log(trackingResult[0]);
       if(trackingResult.length === 0){
         return res.status(409).json({ message: 'Tracking No not exist' });
       }
       if(trackingResult[0].isUpdated !== 0){
         return res.status(409).json({ message: 'This Tracking No already attach with another flight' });
       }
-      res.json(trackingResult[0]);
+      res.json({
+          id:trackingResult[0].id,
+          status:trackingResult[0].trackingNo,
+          bags:trackingResult[0].boxes
+      });
     } catch (error) {
       res.status(500).json({ error: 'Failed to save flight data' });
     }
@@ -67,7 +72,7 @@ router.post('/GetTrackID', async (req, res) => {
 router.get('/GetActiveStatus', async (req, res) => {
   let query = `SELECT id,name,bg_color,text_color FROM flightstatus WHERE isActive = 1 ORDER BY sortOrder ASC`;
   try {
-    const statusResult = await db(query, params);
+    const statusResult = await db(query);
     if(statusResult.length === 0){
       return res.status(409).json({ message: 'Status Not Founds' });
     }
