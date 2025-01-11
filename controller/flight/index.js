@@ -154,7 +154,7 @@ const GetFlightList = async({pageNo,pageSize,companyId,startDate,endDate,userId,
         query += ` GROUP BY shipment.trackId`;
 
         const offset = (pageNo - 1) * pageSize; // Calculate the offset based on pageNo and pageSize
-        query += ` ORDER BY track.id DESC LIMIT ? OFFSET ?`;
+        query += ` ORDER BY track.run DESC LIMIT ? OFFSET ?`;
         params.push(pageSize, offset);
 
         const result = await db(query, params);
