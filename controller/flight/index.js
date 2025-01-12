@@ -11,11 +11,16 @@ const UPS_API_URL = process.env.UPS_API_URL
 
 const AddFlightStatus = async(flightsInfo) => {
     const {companyID,awb,managedBy,createdBy,shipDate,details} = flightsInfo;
-    const sql = `INSERT INTO flights_track (companyID, awb,managedBy, createdBy,shipDate) 
-                    VALUES (?,?,?,?,?)`;
+    const searchQuery = `SELECT COALESCE(MAX(run), 0) AS lastRun FROM flights_track WHERE companyID = ? FOR UPDATE`;
+    const [rows] = await db(searchQuery,[companyID]);
+    const lastRun = rows[0].lastRun;
+    const newRun = lastRun + 1;
+
+    const sql = `INSERT INTO flights_track (companyID, awb,run,managedBy, createdBy,shipDate) 
+                    VALUES (?,?,?,?,?,?)`;
 
     // Use your db function to execute the query
-    const resultflight = await db(sql, [companyID , awb,managedBy, createdBy, shipDate]);
+    const resultflight = await db(sql, [companyID , awb,newRun,managedBy, createdBy, shipDate]);
     let insertedFlightId = resultflight.insertId;
 
     const detailsQuery = `INSERT INTO flights_confige_shipment (trackId, shipmentId, bags, statusID)
