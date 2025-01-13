@@ -11,11 +11,15 @@ const UPS_API_URL = process.env.UPS_API_URL
 
 const AddFlightStatus = async(flightsInfo) => {
     const {companyID,awb,managedBy,createdBy,shipDate,details} = flightsInfo;
+    console.log("companyID",companyID)
     const searchQuery = `SELECT COALESCE(MAX(run), 0) AS lastRun FROM flights_track WHERE companyID = ? FOR UPDATE`;
-    const [rows] = await db(searchQuery,[companyID]);
+    
+    const rows = await db(searchQuery,[companyID]);
+    console.log("lastRun:",rows[0]);
     const lastRun = rows[0].lastRun;
+    
     const newRun = lastRun + 1;
-
+    
     const sql = `INSERT INTO flights_track (companyID, awb,run,managedBy, createdBy,shipDate) 
                     VALUES (?,?,?,?,?,?)`;
 
@@ -83,8 +87,9 @@ const GetFlightInfo = async(id) =>{
         companyID: data?.companyID,
         companyName: data?.companyName,
         awb: data?.awb,
+        run: data?.run,
         createdAt: data?.createdAt,
-        createdBy: data?.firstName+" "+data?.lastName,
+        managedBy: data?.firstName+" "+data?.lastName,
         shipDate: data?.shipDate,
         detailInfo:detailInfo
     }

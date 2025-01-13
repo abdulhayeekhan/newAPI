@@ -6,6 +6,7 @@ const {AddFlightStatus,GetFlightInfo,GetFlightList} = require('../controller/fli
 
 router.post('/add', async (req, res) => {
     const flightsInfo = req.body;
+    console.log("flightsInfo",flightsInfo);
     try {
       const result = await AddFlightStatus(flightsInfo);
       res.json(result);
