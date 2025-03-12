@@ -21,6 +21,8 @@ const upsRouter = require('./routers/ups')
 const trackingRouter = require('./routers/ups')
 const shipmentRouter = require('./routers/shipment')
 const flightRouter = require('./routers/flight')
+const contactRouter = require('./routers/contact')
+
 // const router = require('./routers/cities');
 app.use(cors());
 
@@ -47,6 +49,7 @@ app.use('/account', userRouter);
 app.use('/ups', upsRouter);
 app.use('/shipment', shipmentRouter);
 app.use('/flight', flightRouter);
+app.use('/contact', contactRouter);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
