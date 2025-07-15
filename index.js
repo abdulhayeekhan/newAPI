@@ -14,6 +14,7 @@ const port = process.env.PORT || 3000;
 
 //routes
 const countryRoutes = require('./routers/countries');
+const citiesRouters = require('./routers/cities')
 const companyRoutes = require('./routers/company');
 const stateRouter = require('./routers/state');
 const userRouter = require('./routers/account');
@@ -44,6 +45,7 @@ app.use("/api",(req,res) =>{
 
 
 app.use('/country', countryRoutes);
+app.use('/city',citiesRouters)
 app.use('/company', companyRoutes);
 app.use('/state', stateRouter);
 app.use('/account', userRouter);
