@@ -235,32 +235,63 @@ router.post('/tracking', async (req, res) => {
     }
 
     try {
+        // const sql = `
+        //     SELECT 
+        //         l.TrackingId,
+        //         l.StatusId,
+        //         CONCAT(
+        //             s.StatusName,
+        //             IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
+        //         ) AS StatusName,
+        //         l.CreatedAt,
+        //         ci.FirstName,
+        //         ci.LastName,
+        //         ci.ContactNo,
+        //         ci.Email,
+        //         ci.PostalCode,
+        //         shi.Description,
+        //         shi.Weight,
+        //         shi.WeightUnit,
+        //         shi.CreatedAt as BookingDate,
+        //         CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy,
+        //     FROM localShipmentLog l
+        //     LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
+        //     LEFT JOIN cities c ON l.CityId = c.Id
+        //     INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
+        //     INNER JOIN users ON users.id = shi.CreatedBy
+        //     INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
+        //     WHERE l.TrackingId = ?
+        //     ORDER BY l.CreatedAt ASC;
+        // `;
+
         const sql = `
-            SELECT 
-                l.TrackingId,
-                l.StatusId,
-                CONCAT(
-                    s.StatusName,
-                    IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
-                ) AS StatusName,
-                l.CreatedAt,
-                ci.FirstName,
-                ci.LastName,
-                ci.ContactNo,
-                ci.Email,
-                ci.PostalCode,
-                shi.Description,
-                shi.Weight,
-                shi.WeightUnit,
-                shi.CreatedAt as BookingDate
-            FROM localShipmentLog l
-            LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
-            LEFT JOIN cities c ON l.CityId = c.Id
-            INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
-            INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
-            WHERE l.TrackingId = ?
-            ORDER BY l.CreatedAt ASC;
-        `;
+    SELECT 
+        l.TrackingId,
+        l.StatusId,
+        CONCAT(
+            s.StatusName,
+            IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
+        ) AS StatusName,
+        l.CreatedAt,
+        ci.FirstName,
+        ci.LastName,
+        ci.ContactNo,
+        ci.Email,
+        ci.PostalCode,
+        shi.Description,
+        shi.Weight,
+        shi.WeightUnit,
+        shi.CreatedAt as BookingDate,
+        CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy
+    FROM localShipmentLog l
+    LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
+    LEFT JOIN cities c ON l.CityId = c.Id
+    INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
+    INNER JOIN users ON users.id = shi.CreatedBy
+    INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
+    WHERE l.TrackingId = ?
+    ORDER BY l.CreatedAt ASC;
+`;
 
         const history = await db(sql, [trackingId]);
 
@@ -283,6 +314,7 @@ router.post('/tracking', async (req, res) => {
                 Weight: history[0].Weight,
                 WeightUnit: history[0].WeightUnit,
                 BookingDate: history[0].BookingDate,
+                ReceivedBy: history[0].ReceivedBy,
             },
             history: history.map(h => ({
                 StatusId: h.StatusId,
