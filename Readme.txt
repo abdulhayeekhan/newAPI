@@ -39,5 +39,11 @@
         {
             "trackingId": "THC8003957"
         }
+
+4: GET TrackingList
+--| URL: GET /tracking?pageNo=1&pageSize=10&createdBy=admin&trackingId=THC80039577&deliveryStatusId=1
+  |___  
+      | Method : GET
+        params: pageNo, pageSize , createdBy, trackingId, deliveryStatusId
         
 

@@ -107,7 +107,6 @@ router.post('/createClientAndShipment', async (req, res) => {
 
 router.post('/UpdateShipmentStatus', async (req, res) => {
     const { shipmentIds, statusId, createdBy } = req.body;
-
     // Input validation
     if (!Array.isArray(shipmentIds) || shipmentIds.length === 0 || !statusId) {
         return res.status(400).json({
@@ -189,6 +188,76 @@ router.post('/UpdateShipmentStatus', async (req, res) => {
     } catch (error) {
         console.error('Database query error:', error);
         return res.status(500).json({
+            error: 'Internal Server Error',
+            detail: error.message
+        });
+    }
+});
+
+
+router.get('/GetTrackings', async (req, res) => {
+    try {
+        // Pagination
+        const pageNo = parseInt(req.query.pageNo) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const offset = (pageNo - 1) * pageSize;
+
+        // Optional filters
+        const { createdBy, trackingId , deliveryStatusId } = req.query;
+
+        // Build WHERE clause dynamically
+        let whereClause = 'WHERE 1=1';
+        const params = [];
+
+        if (createdBy) {
+            whereClause += ' AND si.CreatedBy = ?';
+            params.push(createdBy);
+        }
+
+        if (trackingId) {
+            whereClause += ' AND si.TrackingId = ?';
+            params.push(trackingId);
+        }
+
+        if (deliveryStatusId) {
+            whereClause += ' AND si.deliveryStatusId = ?';
+            params.push(deliveryStatusId);
+        }
+
+        // Total count query
+        const countSql = `SELECT COUNT(*) AS totalCount FROM LocalShipmentInformation ${whereClause}`;
+        const [countResult] = await db(countSql, params);
+        const totalCount = countResult?.totalCount || 0;
+
+        // Data query with LIMIT and OFFSET
+        const dataSql = `
+            SELECT 
+                si.Id, si.TrackingId, si.CreatedBy, si.Weight, si.WeightUnit, si.Description,
+                si.deliveryStatusId, si.CreatedAt,si.IsforUK , city.name as BookingCity, 
+                ci.FirstName, ci.LastName, ci.CNIC, ci.ContactNo, ci.Email, ci.PostalCode
+            FROM LocalShipmentInformation as si
+            INNER JOIN clientInfo as ci ON ci.Id = si.ClientId
+            INNER JOIN cities as city ON city.id = si.BookingCityId
+            ${whereClause}
+            ORDER BY si.CreatedAt DESC
+            LIMIT ? OFFSET ?
+            `;
+
+        const dataParams = [...params, pageSize, offset];
+        const shipments = await db(dataSql, dataParams);
+
+        return res.status(200).json({
+            success: true,
+            data: shipments,
+            totalCount,
+            currentPage: pageNo,
+            pageSize
+        });
+
+    } catch (error) {
+        console.error('Error fetching shipments:', error);
+        return res.status(500).json({
+            success: false,
             error: 'Internal Server Error',
             detail: error.message
         });
