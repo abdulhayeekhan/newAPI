@@ -16,7 +16,8 @@
             "Weight": 3.5,
             "WeightUnit": "Kg",
             "Description": "Electronics",
-            "BookingCityId": 1
+            "BookingCityId": 1,
+            "IsForUK":0/1
         }
 
 2: Update Multi Tracking Status

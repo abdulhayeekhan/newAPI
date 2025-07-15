@@ -108,8 +108,6 @@ router.post('/createClientAndShipment', async (req, res) => {
 router.post('/UpdateShipmentStatus', async (req, res) => {
     const { shipmentIds, statusId, createdBy } = req.body;
 
-    console.log('statusId:', statusId)
-
     // Input validation
     if (!Array.isArray(shipmentIds) || shipmentIds.length === 0 || !statusId) {
         return res.status(400).json({
@@ -169,6 +167,15 @@ router.post('/UpdateShipmentStatus', async (req, res) => {
 
             // 4. Insert log
             await db(insertSql, insertParams);
+
+            // 5. Update DeliveryStatusId in LocalShipmentInformation
+            const updateSql = `
+                UPDATE LocalShipmentInformation
+                SET deliveryStatusId = ?
+                WHERE Id = ?
+                `;
+            await db(updateSql, [statusId, shipmentId]);
+
 
             insertedLogs.push({ shipmentId, statusId });
         }
