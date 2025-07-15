@@ -42,7 +42,7 @@ router.post('/createClientAndShipment', async (req, res) => {
         WeightUnit,
         Description,
         BookingCityId,
-        IsForUK = 1,
+        IsForUK,
         ShipmentStatus = 1
     } = req.body;
 
