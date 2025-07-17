@@ -53,7 +53,9 @@ router.post('/createClientAndShipment', async (req, res) => {
         const sql1 = `
       INSERT INTO clientInfo (
         FirstName, LastName, CNIC, ContactNo, Email, PostalCode,
-        CountryId, StateId, CityId, CreatedBy, ModifiedBy
+        CountryId, StateId, CityId
+        
+        , CreatedBy, ModifiedBy
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -195,37 +197,39 @@ router.post('/UpdateShipmentStatus', async (req, res) => {
 });
 
 
-router.get('/GetTrackings', async (req, res) => {
+router.post('/GetTrackings', async (req, res) => {
     try {
         // Pagination
-        const pageNo = parseInt(req.query.pageNo) || 1;
-        const pageSize = parseInt(req.query.pageSize) || 10;
+        const pageNo = parseInt(req.body.pageNo) || 1;
+        const pageSize = parseInt(req.body.pageSize) || 10;
         const offset = (pageNo - 1) * pageSize;
 
         // Optional filters
-        const { createdBy, trackingId , deliveryStatusId } = req.query;
+        const { createdBy, trackingId , deliveryStatusId } = req.body;
 
         // Build WHERE clause dynamically
         let whereClause = 'WHERE 1=1';
         const params = [];
 
-        if (createdBy) {
+        if (createdBy && trackingId.trim() !== '') {
             whereClause += ' AND si.CreatedBy = ?';
             params.push(createdBy);
         }
 
-        if (trackingId) {
+        if (trackingId && trackingId.trim() !== '') {
             whereClause += ' AND si.TrackingId = ?';
             params.push(trackingId);
         }
 
-        if (deliveryStatusId) {
+        if (deliveryStatusId && trackingId.trim() !== '') {
             whereClause += ' AND si.deliveryStatusId = ?';
             params.push(deliveryStatusId);
         }
 
         // Total count query
-        const countSql = `SELECT COUNT(*) AS totalCount FROM LocalShipmentInformation ${whereClause}`;
+        //const countSql = `SELECT COUNT(*) AS totalCount FROM LocalShipmentInformation ${whereClause}`;
+        const countSql = `SELECT COUNT(*) AS totalCount FROM LocalShipmentInformation AS si ${whereClause}`;
+
         const [countResult] = await db(countSql, params);
         const totalCount = countResult?.totalCount || 0;
 
