@@ -33,6 +33,7 @@ router.post('/createClientAndShipment', async (req, res) => {
         ContactNo,
         Email,
         PostalCode,
+        Address,
         CountryId = 178,
         StateId = 72,
         CityId,
@@ -43,6 +44,13 @@ router.post('/createClientAndShipment', async (req, res) => {
         Description,
         BookingCityId,
         IsForUK,
+        FreightAmountPKR,
+        ValuePKR,
+        ConsignName,
+        ConsignAddress, 
+        ConsignCountryId, 
+        ConsignZipCode , 
+        ConsignContactNo,
         ShipmentStatus = 1
     } = req.body;
 
@@ -51,20 +59,32 @@ router.post('/createClientAndShipment', async (req, res) => {
     try {
         // 1. Insert into clientInfo
         const sql1 = `
-      INSERT INTO clientInfo (
-        FirstName, LastName, CNIC, ContactNo, Email, PostalCode,
-        CountryId, StateId, CityId
-        
-        , CreatedBy, ModifiedBy
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+            INSERT INTO clientInfo (
+                FirstName, LastName, CNIC, ContactNo, Email, PostalCode, Address,
+                CountryId, StateId, CityId
+                , CreatedBy, ModifiedBy
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
         const result1 = await db(sql1, [
-            FirstName, LastName, CNIC, ContactNo, Email, PostalCode,
+            FirstName, LastName, CNIC, ContactNo, Email, PostalCode, Address,
             CountryId, StateId, CityId, CreatedBy, ModifiedBy
         ]);
 
         const clientId = result1.insertId;
+
+
+
+        const sql4 = `
+            INSERT INTO consigneeInfo 
+            (Name, Address, CountryId, ZipCode, ContactNo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `
+        const result4 =  await db(sql4 , [
+            ConsignName,ConsignAddress, ConsignCountryId, ConsignZipCode , ConsignContactNo
+        ])
+        const consigneeInfoId = result4.insertId;
+
 
         // 2. Generate Tracking ID
         const trackingId = 'THC' + Math.floor(1000000 + Math.random() * 9000000);
@@ -73,13 +93,13 @@ router.post('/createClientAndShipment', async (req, res) => {
         const sql2 = `
             INSERT INTO LocalShipmentInformation (
                 TrackingId, ClientId, Weight, WeightUnit, Description,
-                BookingCityId, IsForUK, CreatedBy
+                BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
         const result2 = await db(sql2, [
             trackingId, clientId, Weight, WeightUnit, Description,
-            BookingCityId, IsForUK, CreatedBy
+            BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId
         ]);
 
         const shipmentId = result2.insertId
