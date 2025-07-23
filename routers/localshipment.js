@@ -41,18 +41,21 @@ router.post('/createClientAndShipment', async (req, res) => {
         ModifiedBy,
         Weight,
         WeightUnit,
-        Description,
         BookingCityId,
         IsForUK,
         FreightAmountPKR,
         ValuePKR,
         ConsignName,
-        ConsignAddress, 
-        ConsignCountryId, 
-        ConsignZipCode , 
+        ConsignAddress,
+        ConsignCountryId,
+        ConsignZipCode,
         ConsignContactNo,
+        NoOfPcs,
+        ShipmentDetails,
         ShipmentStatus = 1
     } = req.body;
+
+    //ShipmentDetails:{Description:'', Quantity:''}
 
     const createdAtPKT = moment().tz('Asia/Karachi').format('YYYY-MM-DD HH:mm:ss');
 
@@ -78,10 +81,10 @@ router.post('/createClientAndShipment', async (req, res) => {
         const sql4 = `
             INSERT INTO consigneeInfo 
             (Name, Address, CountryId, ZipCode, ContactNo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         `
-        const result4 =  await db(sql4 , [
-            ConsignName,ConsignAddress, ConsignCountryId, ConsignZipCode , ConsignContactNo
+        const result4 = await db(sql4, [
+            ConsignName, ConsignAddress, ConsignCountryId, ConsignZipCode, ConsignContactNo
         ])
         const consigneeInfoId = result4.insertId;
 
@@ -92,17 +95,29 @@ router.post('/createClientAndShipment', async (req, res) => {
         // 3. Insert into LocalShipmentInformation
         const sql2 = `
             INSERT INTO LocalShipmentInformation (
-                TrackingId, ClientId, Weight, WeightUnit, Description,
-                BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId
+                TrackingId, ClientId, Weight, WeightUnit,
+                BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId,NoOfPcs
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
         const result2 = await db(sql2, [
-            trackingId, clientId, Weight, WeightUnit, Description,
-            BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId
+            trackingId, clientId, Weight, WeightUnit,
+            BookingCityId, IsForUK, CreatedBy, FreightAmountPKR, ValuePKR, consigneeInfoId, NoOfPcs
         ]);
 
         const shipmentId = result2.insertId
+
+        // Insert multiple localShipmentDetails
+        
+
+        await Promise.all(ShipmentDetails.map(({ Description, Quantity }) => {
+            const detailSql = `
+                INSERT INTO localShipmentDetails (Description, Quantity, ShipmentId)
+                VALUES (?, ?, ?)
+            `;
+            return db(detailSql, [Description, Quantity, shipmentId]);
+        }));
+
 
         const isCity = 1;
         const sql3 = `INSERT INTO localShipmentLog (
@@ -225,7 +240,7 @@ router.post('/GetTrackings', async (req, res) => {
         const offset = (pageNo - 1) * pageSize;
 
         // Optional filters
-        const { createdBy, trackingId , deliveryStatusId } = req.body;
+        const { createdBy, trackingId, deliveryStatusId } = req.body;
 
         // Build WHERE clause dynamically
         let whereClause = 'WHERE 1=1';
@@ -256,7 +271,7 @@ router.post('/GetTrackings', async (req, res) => {
         // Data query with LIMIT and OFFSET
         const dataSql = `
             SELECT 
-                si.Id, si.TrackingId, si.CreatedBy, si.Weight, si.WeightUnit, si.Description,
+                si.Id, si.TrackingId, si.CreatedBy, si.Weight, si.WeightUnit,
                 si.deliveryStatusId, si.CreatedAt,si.IsforUK , city.name as BookingCity, 
                 ci.FirstName, ci.LastName, ci.CNIC, ci.ContactNo, ci.Email, ci.PostalCode
             FROM LocalShipmentInformation as si
@@ -378,7 +393,6 @@ router.post('/tracking', async (req, res) => {
         ci.ContactNo,
         ci.Email,
         ci.PostalCode,
-        shi.Description,
         shi.Weight,
         shi.WeightUnit,
         shi.CreatedAt as BookingDate,
@@ -410,7 +424,6 @@ router.post('/tracking', async (req, res) => {
                 PostalCode: history[0].PostalCode,
             },
             shipment: {
-                Description: history[0].Description,
                 Weight: history[0].Weight,
                 WeightUnit: history[0].WeightUnit,
                 BookingDate: history[0].BookingDate,
