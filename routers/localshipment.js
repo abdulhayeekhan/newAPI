@@ -132,7 +132,8 @@ router.post('/createClientAndShipment', async (req, res) => {
             success: true,
             message: 'Client and shipment created successfully',
             clientId,
-            trackingId
+            trackingId,
+            shipmentId
         });
     } catch (error) {
         console.error('Insert error:', error);
