@@ -25,6 +25,82 @@ router.get('/getShipmentStatus', async (req, res) => {
 });
 
 
+router.get('/GetSingleShipmentInformation', async (req, res) => {
+    const ShipmentId = req.query.ShipmentId;
+
+    const query = `
+    SELECT
+      s.id AS ShipmentId,
+      s.TrackingId,
+      s.Weight,
+      s.WeightUnit,
+      s.BookingCityId,
+      s.IsForUK,
+      s.FreightAmountPKR,
+      s.ValuePKR,
+      s.NoOfPcs,
+
+      -- Client Info
+      c.FirstName,
+      c.LastName,
+      c.CNIC,
+      c.ContactNo AS ClientContact,
+      c.Email AS ClientEmail,
+      c.PostalCode,
+      c.Address AS ClientAddress,
+
+      -- Consignee Info
+      cons.Name AS ConsigneeName,
+      cons.Address AS ConsigneeAddress,
+      cons.CountryId AS ConsigneeCountryId,
+      cons.ZipCode AS ConsigneeZip,
+      cons.ContactNo AS ConsigneeContact,
+      
+      -- Created By User
+      us.firstName AS CreatedByFirstName,
+      us.lastName AS CreatedByLastName,
+      CONCAT(us.firstName, ' ', us.lastName) AS CreatedByName,
+      
+      -- Shipment Details
+      d.Description,
+      d.Quantity
+
+    FROM LocalShipmentInformation s
+    JOIN users us ON s.CreatedBy = us.id
+    JOIN clientInfo c ON s.ClientId = c.id
+    JOIN consigneeInfo cons ON s.consigneeInfoId = cons.id
+    LEFT JOIN localShipmentDetails d ON s.id = d.ShipmentId
+    WHERE s.id = ?
+  `;
+
+    try {
+        const result = await db(query, [ShipmentId]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Shipment not found' });
+        }
+
+        // Optional: group details if there are multiple items
+        const shipmentInfo = {
+            ...result[0],
+            shipmentDetails: result.map(r => ({
+                Description: r.Description,
+                Quantity: r.Quantity
+            }))
+        };
+
+        // Remove duplicate flat detail fields if needed
+        delete shipmentInfo.Description;
+        delete shipmentInfo.Quantity;
+
+        res.json(shipmentInfo);
+    } catch (error) {
+        console.error('Error fetching shipment:', error);
+        res.status(500).send('Error fetching shipment');
+    }
+});
+
+
 router.post('/createClientAndShipment', async (req, res) => {
     const {
         FirstName,
@@ -108,7 +184,7 @@ router.post('/createClientAndShipment', async (req, res) => {
         const shipmentId = result2.insertId
 
         // Insert multiple localShipmentDetails
-        
+
 
         await Promise.all(ShipmentDetails.map(({ Description, Quantity }) => {
             const detailSql = `
