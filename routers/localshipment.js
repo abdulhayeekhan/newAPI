@@ -39,6 +39,8 @@ router.get('/GetSingleShipmentInformation', async (req, res) => {
       s.FreightAmountPKR,
       s.ValuePKR,
       s.NoOfPcs,
+      s.createdAt AS BookingDate,
+      s.deliveryStatusId,
 
       -- Client Info
       c.FirstName,
@@ -55,7 +57,7 @@ router.get('/GetSingleShipmentInformation', async (req, res) => {
       cons.CountryId AS ConsigneeCountryId,
       cons.ZipCode AS ConsigneeZip,
       cons.ContactNo AS ConsigneeContact,
-      
+
       -- Created By User
       us.firstName AS CreatedByFirstName,
       us.lastName AS CreatedByLastName,
