@@ -351,11 +351,12 @@ router.post('/GetTrackings', async (req, res) => {
         const dataSql = `
             SELECT 
                 si.Id, si.TrackingId, si.CreatedBy, si.Weight, si.WeightUnit,
-                si.deliveryStatusId, si.CreatedAt,si.IsforUK , city.name as BookingCity, 
+                si.deliveryStatusId,ds.StatusName, si.CreatedAt,si.IsforUK , city.name as BookingCity, 
                 ci.FirstName, ci.LastName, ci.CNIC, ci.ContactNo, ci.Email, ci.PostalCode
             FROM LocalShipmentInformation as si
             INNER JOIN clientInfo as ci ON ci.Id = si.ClientId
             INNER JOIN cities as city ON city.id = si.BookingCityId
+            INNER JOIN deliveryStatus as ds ON ds.Id = si.deliveryStatusId
             ${whereClause}
             ORDER BY si.CreatedAt DESC
             LIMIT ? OFFSET ?
