@@ -330,19 +330,21 @@ router.post('/GetTrackings', async (req, res) => {
             params.push(createdBy);
         }
 
-        if (typeof IsforUK === 'boolean') {
-            whereClause += ' AND si.IsforUK = ?';
-            params.push(IsforUK ? 1 : 0);
-        }
+        
 
         if (trackingId && trackingId.trim() !== '') {
             whereClause += ' AND si.TrackingId = ?';
             params.push(trackingId);
         }
 
-        if (deliveryStatusId && trackingId.trim() !== '') {
+        if (deliveryStatusId && deliveryStatusId !== '') {
             whereClause += ' AND si.deliveryStatusId = ?';
             params.push(deliveryStatusId);
+        }
+
+        if (typeof IsforUK === 'boolean') {
+            whereClause += ' AND si.IsforUK = ?';
+            params.push(IsforUK ? 1 : 0);
         }
 
         // Total count query
