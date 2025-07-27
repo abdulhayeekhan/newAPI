@@ -319,7 +319,7 @@ router.post('/GetTrackings', async (req, res) => {
         const offset = (pageNo - 1) * pageSize;
 
         // Optional filters
-        const { createdBy, trackingId, deliveryStatusId } = req.body;
+        const { createdBy, trackingId, deliveryStatusId, IsforUK } = req.body;
 
         // Build WHERE clause dynamically
         let whereClause = 'WHERE 1=1';
@@ -328,6 +328,11 @@ router.post('/GetTrackings', async (req, res) => {
         if (createdBy && trackingId.trim() !== '') {
             whereClause += ' AND si.CreatedBy = ?';
             params.push(createdBy);
+        }
+
+        if (typeof IsforUK === 'boolean') {
+            whereClause += ' AND si.IsforUK = ?';
+            params.push(IsforUK ? 1 : 0);
         }
 
         if (trackingId && trackingId.trim() !== '') {
