@@ -26,7 +26,7 @@ router.get('/getShipmentStatus', async (req, res) => {
 
 router.get('/getShipmentShortStatus', async (req, res) => {
     const IsForUK = req.query.IsForUK ?? 0;
-    
+
     const query = `
         SELECT Id, shortName AS StatusName, IsForUK, SortOrder 
         FROM deliveryStatus 
@@ -505,6 +505,8 @@ router.post('/tracking', async (req, res) => {
         shi.Weight,
         shi.WeightUnit,
         shi.CreatedAt as BookingDate,
+        shi.isForUK,
+        shi.NoOfPcs,
         CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy
     FROM localShipmentLog l
     LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
@@ -536,6 +538,8 @@ router.post('/tracking', async (req, res) => {
                 Weight: history[0].Weight,
                 WeightUnit: history[0].WeightUnit,
                 BookingDate: history[0].BookingDate,
+                IsForUK: history[0].isForUK,
+                NoOfPcs: history[0].NoOfPcs,
                 ReceivedBy: history[0].ReceivedBy,
             },
             history: history.map(h => ({
