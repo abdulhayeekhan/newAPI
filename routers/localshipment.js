@@ -502,7 +502,7 @@ router.post('/tracking', async (req, res) => {
         ci.ContactNo,
         ci.Email,
         ci.PostalCode,
-        ci.name as BookingCity,
+        city.name as BookingCity,
         shi.Weight,
         shi.WeightUnit,
         shi.CreatedAt as BookingDate,
@@ -512,8 +512,8 @@ router.post('/tracking', async (req, res) => {
     FROM localShipmentLog l
     LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
     LEFT JOIN cities c ON l.CityId = c.Id
-    LEFT JOIN cities ci ON shi.BookingCityId = ci.Id
     INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
+    INNER JOIN cities city ON shi.BookingCityId = city.id
     INNER JOIN users ON users.id = shi.CreatedBy
     INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
     WHERE l.TrackingId = ?
