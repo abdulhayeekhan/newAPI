@@ -453,73 +453,43 @@ router.post('/GetTrackings', async (req, res) => {
 
 router.post('/tracking', async (req, res) => {
     const { trackingId } = req.body;
-
     if (!trackingId) {
         return res.status(400).json({ error: 'TrackingId is required' });
     }
-
     try {
-        // const sql = `
-        //     SELECT 
-        //         l.TrackingId,
-        //         l.StatusId,
-        //         CONCAT(
-        //             s.StatusName,
-        //             IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
-        //         ) AS StatusName,
-        //         l.CreatedAt,
-        //         ci.FirstName,
-        //         ci.LastName,
-        //         ci.ContactNo,
-        //         ci.Email,
-        //         ci.PostalCode,
-        //         shi.Description,
-        //         shi.Weight,
-        //         shi.WeightUnit,
-        //         shi.CreatedAt as BookingDate,
-        //         CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy,
-        //     FROM localShipmentLog l
-        //     LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
-        //     LEFT JOIN cities c ON l.CityId = c.Id
-        //     INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
-        //     INNER JOIN users ON users.id = shi.CreatedBy
-        //     INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
-        //     WHERE l.TrackingId = ?
-        //     ORDER BY l.CreatedAt ASC;
-        // `;
-
         const sql = `
-    SELECT 
-        l.TrackingId,
-        l.StatusId,
-        CONCAT(
-            s.StatusName,
-            IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
-        ) AS StatusName,
-        l.CreatedAt,
-        ci.FirstName,
-        ci.LastName,
-        ci.ContactNo,
-        ci.Email,
-        ci.PostalCode,
-        city.name as BookingCity,
-        shi.Weight,
-        shi.WeightUnit,
-        shi.CreatedAt as BookingDate,
-        shi.isForUK,
-        shi.NoOfPcs,
-        CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy
-    FROM localShipmentLog l
-    LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
-    LEFT JOIN cities c ON l.CityId = c.Id
-    INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
-    INNER JOIN cities city ON shi.BookingCityId = city.id
-    INNER JOIN users ON users.id = shi.CreatedBy
-    INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
-    WHERE l.TrackingId = ?
-    ORDER BY l.CreatedAt ASC;
-`;
-
+            SELECT 
+                l.TrackingId,
+                l.StatusId,
+                CONCAT(
+                    s.StatusName,
+                    IF(l.isCity = 1 AND c.name IS NOT NULL, CONCAT(' ', c.name), '')
+                ) AS StatusName,
+                l.CreatedAt,
+                ci.FirstName,
+                ci.LastName,
+                ci.ContactNo,
+                ci.Email,
+                ci.PostalCode,
+                city.name as BookingCity,
+                shi.Weight,
+                shi.WeightUnit,
+                shi.CreatedAt as BookingDate,
+                shi.isForUK,
+                shi.NoOfPcs,
+                contry.Country as ShipToCountryName,
+                CONCAT(users.firstName, ' ', users.lastName) AS ReceivedBy
+            FROM localShipmentLog l
+            LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
+            LEFT JOIN cities c ON l.CityId = c.Id
+            INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
+            LEFT JOIN countries contry ON contry.id = shi.ShipToCountryId
+            INNER JOIN cities city ON shi.BookingCityId = city.id
+            INNER JOIN users ON users.id = shi.CreatedBy
+            INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
+            WHERE l.TrackingId = ?
+            ORDER BY l.CreatedAt ASC;
+        `;
         const history = await db(sql, [trackingId]);
 
         if (history.length === 0) {
@@ -543,7 +513,8 @@ router.post('/tracking', async (req, res) => {
                 IsForUK: history[0].isForUK,
                 NoOfPcs: history[0].NoOfPcs,
                 ReceivedBy: history[0].ReceivedBy,
-                BookingCity: history[0].BookingCity
+                BookingCity: history[0].BookingCity,
+                ShipToCountryName: history[0].ShipToCountryName
             },
             history: history.map(h => ({
                 StatusId: h.StatusId,
