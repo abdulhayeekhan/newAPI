@@ -24,6 +24,28 @@ router.get('/getShipmentStatus', async (req, res) => {
     }
 });
 
+router.get('/getShipmentShortStatus', async (req, res) => {
+    const IsForUK = req.query.IsForUK ?? 0;
+    
+    const query = `
+        SELECT Id, shortName AS StatusName, IsForUK, SortOrder 
+        FROM deliveryStatus 
+        WHERE isShortStatus = 1 
+          AND (IsForUK = ? OR (IsForUK IS NULL AND isActive = 1)) 
+        ORDER BY SortOrder ASC
+    `;
+    try {
+        const results = await db(query, [IsForUK]); // Call db with the SQL query
+        if (results.length === 0) {
+            return res.status(404).send('No countries found for shipping');
+        }
+        res.json(results);
+    } catch (error) {
+        console.error('Error fetching countries:', error);
+        res.status(500).send('Error fetching countries');
+    }
+});
+
 
 router.get('/GetSingleShipmentInformation', async (req, res) => {
     const ShipmentId = req.query.ShipmentId;
