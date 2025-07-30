@@ -502,6 +502,7 @@ router.post('/tracking', async (req, res) => {
         ci.ContactNo,
         ci.Email,
         ci.PostalCode,
+        ci.name as BookingCity,
         shi.Weight,
         shi.WeightUnit,
         shi.CreatedAt as BookingDate,
@@ -511,6 +512,7 @@ router.post('/tracking', async (req, res) => {
     FROM localShipmentLog l
     LEFT JOIN deliveryStatus s ON l.StatusId = s.Id
     LEFT JOIN cities c ON l.CityId = c.Id
+    LEFT JOIN cities ci ON shi.BookingCityId = ci.Id
     INNER JOIN LocalShipmentInformation shi ON l.ShipmentId = shi.Id
     INNER JOIN users ON users.id = shi.CreatedBy
     INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
@@ -541,6 +543,7 @@ router.post('/tracking', async (req, res) => {
                 IsForUK: history[0].isForUK,
                 NoOfPcs: history[0].NoOfPcs,
                 ReceivedBy: history[0].ReceivedBy,
+                BookingCity: history[0].BookingCity
             },
             history: history.map(h => ({
                 StatusId: h.StatusId,
