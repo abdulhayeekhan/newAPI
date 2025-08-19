@@ -344,7 +344,7 @@ router.post('/GetTrackings', async (req, res) => {
         const { createdBy, trackingId, deliveryStatusId, IsforUK } = req.body;
 
         // Build WHERE clause dynamically
-        let whereClause = 'WHERE 1=1';
+        let whereClause = 'WHERE si.isEnabled=1 AND 1=1';
         const params = [];
 
         if (createdBy && trackingId.trim() !== '') {
@@ -487,13 +487,13 @@ router.post('/tracking', async (req, res) => {
             INNER JOIN cities city ON shi.BookingCityId = city.id
             INNER JOIN users ON users.id = shi.CreatedBy
             INNER JOIN clientInfo ci ON shi.ClientId = ci.Id
-            WHERE l.TrackingId = ?
+            WHERE l.TrackingId = ? && shi.isEnabled = 1
             ORDER BY l.CreatedAt ASC;
         `;
         const history = await db(sql, [trackingId]);
 
         if (history.length === 0) {
-            return res.status(404).json({ message: 'No tracking history found.' });
+            return res.status(404).json({ message: 'No tracking found.' });
         }
 
         res.status(200).json({
