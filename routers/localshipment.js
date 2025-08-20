@@ -125,6 +125,25 @@ router.get('/GetSingleShipmentInformation', async (req, res) => {
 });
 
 
+router.delete('/delete', async (req, res) => {
+    const id = req.query.id;
+    const query = `UPDATE LocalShipmentInformation SET isEnabled = 0 WHERE Id = ? `;
+
+    try {
+        const result = await db(query, [id]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'tracking not found' });
+        }
+
+        res.json({ message: 'Your tracking was removed successfully' });
+    } catch (error) {
+        console.error('Error fetching shipment:', error);
+        res.status(500).send('Error fetching shipment');
+    }
+});
+
+
 router.post('/createClientAndShipment', async (req, res) => {
     const {
         FirstName,
